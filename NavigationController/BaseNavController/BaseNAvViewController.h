@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateNavigationBarFor:(UIViewController *) viewController;
 
-- (void)updateNavigationBarTintFor:(UIViewController *) viewController;
+- (void)updateNavigationBarTintFor:(UIViewController *) viewController ignoreTintColor:(BOOL) ignoreTintColor;
 
 - (void)updateNavigationBarBackgroundFor:(UIViewController *) viewController;
 

@@ -6,7 +6,7 @@
 //  Copyright © 2019 张稳. All rights reserved.
 //
 
-#import "BaseNavViewController.h"
+#import "BaseNAvViewController.h"
 #import "FakeNavigationBar.h"
 #import "UIViewController+NavBar.h"
 
@@ -17,8 +17,6 @@
 @property (nonatomic, strong) FakeNavigationBar *toFakeBar;
 @property (nonatomic, strong) UIView *fakeSuperView;
 @property (nonatomic, weak) UIViewController *poppingVC;
-@property (nonatomic, strong) NSObject *fakeFrameObserver;
-
 
 @end
 
@@ -36,14 +34,48 @@
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
-    UIViewController *fromVC = [self.transitionCoordinator viewControllerForKey:UITransitionContextFromViewKey];
-    if (fromVC == self.poppingVC) {
-
+    if (self.transitionCoordinator) {
+        UIViewController *fromVC = [self.transitionCoordinator viewControllerForKey:UITransitionContextFromViewControllerKey];
+        if (!fromVC) return;
+        if (fromVC == self.poppingVC) {
+            [self updateNavigationBarFor:fromVC];
+        }
+    } else {
+        if (!self.topViewController) return;
+        [self updateNavigationBarFor:self.topViewController];
     }
 }
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    [self layoutFakeSubviews];
+}
+
+- (UIViewController *)popViewControllerAnimated:(BOOL)animated {
+    self.poppingVC = self.topViewController;
+    UIViewController *viewController = [super popViewControllerAnimated:animated];
+    if (self.topViewController) {
+        [self updateNavigationBarTintFor:self.topViewController ignoreTintColor:YES];
+    }
+    return viewController;
+}
+
+- (NSArray<UIViewController *> *)popToRootViewControllerAnimated:(BOOL)animated {
+    self.poppingVC = self.topViewController;
+    NSArray *vcArray = [super popToRootViewControllerAnimated:animated];
+    if (self.topViewController) {
+        [self updateNavigationBarTintFor:self.topViewController ignoreTintColor:YES];
+    }
+    return vcArray;
+}
+
+- (NSArray<UIViewController *> *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    self.poppingVC = self.topViewController;
+    NSArray *vcArray = [super popToViewController:viewController animated:animated];
+    if (self.topViewController) {
+        [self updateNavigationBarTintFor:self.topViewController ignoreTintColor:YES];
+    }
+    return vcArray;
 }
 
 #pragma mark -- private
@@ -65,11 +97,6 @@
     if (!self.fakeSuperView) return;
     self.fakeBar.frame = self.fakeSuperView.bounds;
     [self.fakeBar setNeedsLayout];
-}
-
-#pragma mark -- observer
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    [self layoutFakeSubviews];
 }
 
 - (void)handlerInteractivePopGesture:(UIScreenEdgePanGestureRecognizer *) gesture {
@@ -106,21 +133,150 @@
     return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
 }
 
-#pragma mark -- public
-- (void)updateNavigationBarFor:(UIViewController *) viewController {
-     
+- (void)showViewControllerWith:(UIViewController *) viewController coordinator:(id<UIViewControllerTransitionCoordinator>) coordinator {
+    
+    UIViewController *fromVC = [coordinator viewControllerForKey:UITransitionContextFromViewControllerKey];
+    UIViewController *toVC = [coordinator viewControllerForKey:UITransitionContextToViewControllerKey];
+
+    if (fromVC && toVC) {
+        [self resetButtonLabelsIn:self.navigationBar];
+        [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+            if ([viewController isEqual:toVC]) {
+                [self showTempFakeBarFrom:fromVC toVC:toVC];
+            } else {
+                [self updateNavigationBarBackgroundFor:viewController];
+                [self updateNavigationBarShadowFor:viewController];
+            }
+        } completion:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+            if (context.isCancelled) {
+                [self updateNavigationBarFor:fromVC];
+            } else {
+                [self updateNavigationBarFor:viewController];
+            }
+            if ([viewController isEqual:toVC]) {
+                [self clearTempFakeBar];
+            }
+        }];
+    }
 }
 
-- (void)updateNavigationBarTintFor:(UIViewController *) viewController {
+- (void)clearTempFakeBar {
+    self.fakeBar.alpha = 1;
+    [self.fromFakeBar removeFromSuperview];
+    [self.toFakeBar removeFromSuperview];
+}
+
+- (void)showTempFakeBarFrom:(UIViewController *)fromVC toVC:(UIViewController *)toVC {
+    [UIView setAnimationsEnabled:NO];
+    self.fakeBar.alpha = 0;
+    //from
+    [fromVC.view addSubview:self.fromFakeBar];
+    self.fromFakeBar.frame = [self fakeBarFrameFor:fromVC];
+    [self.fromFakeBar setNeedsLayout];
+    [self.fromFakeBar updateFakeBarBackgroundWithViewController:fromVC];
+    [self.fromFakeBar updateFakeBarShadowWithViewController:fromVC];
+    //to
+    [toVC.view addSubview:self.toFakeBar];
+    self.toFakeBar.frame = [self fakeBarFrameFor:toVC];
+    [self.toFakeBar setNeedsLayout];
+    [self.toFakeBar updateFakeBarBackgroundWithViewController:toVC];
+    [self.toFakeBar updateFakeBarShadowWithViewController:toVC];
+    [UIView setAnimationsEnabled:NO];
+}
+
+- (CGRect)fakeBarFrameFor:(UIViewController *) viewController {
+    if (self.fakeSuperView) {
+        CGRect frame = [self.navigationBar convertRect:self.fakeSuperView.frame toView:viewController.view];
+        frame.origin.x = viewController.view.frame.origin.x;
+        return frame;
+    } else {
+        return self.navigationBar.frame;
+    }
+}
+
+- (void)resetButtonLabelsIn:(UIView *) view {
+    NSString *viewClassName = [[[view classForCoder] description] stringByReplacingOccurrencesOfString:@"_" withString:@""];
+    if ([viewClassName isEqualToString:@"UIButtonLabel"]) {
+        view.alpha = 1;
+    } else {
+        if (view.subviews.count > 0) {
+            for (UIView *subview in view.subviews) {
+                [self resetButtonLabelsIn:subview];
+            }
+        }
+    }
+}
+
+#pragma mark -- observer
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    [self layoutFakeSubviews];
+}
+
+#pragma mark -- UINavigationControllerDelegate
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    if (self.transitionCoordinator) {
+        [self showViewControllerWith:viewController coordinator:self.transitionCoordinator];
+    } else {
+        if (!animated && self.viewControllers.count > 1) {
+            UIViewController *lastButOneVC = self.viewControllers[self.viewControllers.count - 2];
+            [self showTempFakeBarFrom:lastButOneVC toVC:viewController];
+            return;
+        }
+        [self updateNavigationBarFor:viewController];
+    }
+}
+
+- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    if (!animated) {
+        [self updateNavigationBarFor:viewController];
+        [self clearTempFakeBar];
+    }
+    self.poppingVC = nil;
+}
+
+#pragma mark -- UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (self.viewControllers.count <= 1) {
+        return NO;
+    }
     
+    if (self.topViewController) {
+        return self.topViewController.zEnablePopGesture;
+    }
+    
+    return YES;
+}
+
+#pragma mark -- public
+- (void)updateNavigationBarFor:(UIViewController *) viewController {
+    [self setupFakeSubviews];
+    [self updateNavigationBarTintFor:viewController ignoreTintColor:NO];
+    [self updateNavigationBarBackgroundFor:viewController];
+    [self updateNavigationBarShadowFor:viewController];
+}
+
+- (void)updateNavigationBarTintFor:(UIViewController *) viewController ignoreTintColor:(BOOL) ignoreTintColor {
+    if (viewController != self.topViewController) return;
+    
+    [UIView setAnimationsEnabled:NO];
+    self.navigationBar.barStyle = viewController.zBarStyle;
+    NSDictionary *titleTextAttributes = @{NSForegroundColorAttributeName:viewController.zTitleColor,
+                                          NSFontAttributeName:viewController.zTitleFont};
+    self.navigationBar.titleTextAttributes = titleTextAttributes;
+    if (!ignoreTintColor) {
+        self.navigationBar.tintColor = viewController.zTintColor;
+    }
+    [UIView setAnimationsEnabled:YES];
 }
 
 - (void)updateNavigationBarBackgroundFor:(UIViewController *) viewController {
-    
+    if (viewController != self.topViewController) return;
+    [self.fakeBar updateFakeBarBackgroundWithViewController:viewController];
 }
 
 - (void)updateNavigationBarShadowFor:(UIViewController *) viewController {
-    
+    if (viewController != self.topViewController) return;
+    [self.fakeBar updateFakeBarShadowWithViewController:viewController];
 }
 
 #pragma mark -- delloc

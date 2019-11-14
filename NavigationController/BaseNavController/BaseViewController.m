@@ -9,7 +9,7 @@
 #import "BaseViewController.h"
 #import "UIViewController+NavBar.h"
 #import <objc/message.h>
-#import "BaseNavViewController.h"
+#import "BaseNAvViewController.h"
 
 struct NavigationBarKeys {
     NSString *barStyle;
@@ -205,7 +205,7 @@ struct NavigationBarKeys {
 - (void)zsetNeedsNavigationBarTintUpdate {
     if ([self.navigationController isKindOfClass:[BaseNavViewController class]]) {
         BaseNavViewController *nav = (BaseNavViewController *)self.navigationController;
-        [nav updateNavigationBarTintFor:self];
+        [nav updateNavigationBarTintFor:self ignoreTintColor:NO];
     }
 }
 
