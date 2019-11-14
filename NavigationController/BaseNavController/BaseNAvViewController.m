@@ -6,11 +6,11 @@
 //  Copyright © 2019 张稳. All rights reserved.
 //
 
-#import "BaseNAvViewController.h"
+#import "BaseNavViewController.h"
 #import "FakeNavigationBar.h"
 #import "UIViewController+NavBar.h"
 
-@interface BaseNAvViewController ()<UINavigationControllerDelegate, UIGestureRecognizerDelegate>
+@interface BaseNavViewController ()<UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) FakeNavigationBar *fakeBar;
 @property (nonatomic, strong) FakeNavigationBar *fromFakeBar;
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation BaseNAvViewController
+@implementation BaseNavViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F75017F1237BEE630068DB48 /* BaseNAvViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F75017F0237BEE630068DB48 /* BaseNAvViewController.m */; };
+		F75017F1237BEE630068DB48 /* BaseNavViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F75017F0237BEE630068DB48 /* BaseNavViewController.m */; };
+		F75199F6237CF05900A2E50D /* BaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F75199F5237CF05900A2E50D /* BaseViewController.m */; };
 		F754CAB0237BD66C00AC1A25 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F754CAAF237BD66C00AC1A25 /* AppDelegate.m */; };
 		F754CAB3237BD66C00AC1A25 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F754CAB2237BD66C00AC1A25 /* SceneDelegate.m */; };
 		F754CAB6237BD66C00AC1A25 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F754CAB5237BD66C00AC1A25 /* ViewController.m */; };
@@ -19,8 +20,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F75017EF237BEE630068DB48 /* BaseNAvViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseNAvViewController.h; sourceTree = "<group>"; };
-		F75017F0237BEE630068DB48 /* BaseNAvViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseNAvViewController.m; sourceTree = "<group>"; };
+		F75017EF237BEE630068DB48 /* BaseNavViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseNavViewController.h; sourceTree = "<group>"; };
+		F75017F0237BEE630068DB48 /* BaseNavViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseNavViewController.m; sourceTree = "<group>"; };
+		F75199F4237CF05900A2E50D /* BaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseViewController.h; sourceTree = "<group>"; };
+		F75199F5237CF05900A2E50D /* BaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseViewController.m; sourceTree = "<group>"; };
 		F754CAAB237BD66C00AC1A25 /* NavigationController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NavigationController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F754CAAE237BD66C00AC1A25 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F754CAAF237BD66C00AC1A25 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -90,8 +93,10 @@
 				F754CAC8237BD6F800AC1A25 /* FakeNavigationBar.h */,
 				F754CAC9237BD6F800AC1A25 /* FakeNavigationBar.m */,
 				F754CACB237BDE9D00AC1A25 /* UIViewController+NavBar.h */,
-				F75017EF237BEE630068DB48 /* BaseNAvViewController.h */,
-				F75017F0237BEE630068DB48 /* BaseNAvViewController.m */,
+				F75199F4237CF05900A2E50D /* BaseViewController.h */,
+				F75199F5237CF05900A2E50D /* BaseViewController.m */,
+				F75017EF237BEE630068DB48 /* BaseNavViewController.h */,
+				F75017F0237BEE630068DB48 /* BaseNavViewController.m */,
 			);
 			path = BaseNavController;
 			sourceTree = "<group>";
@@ -167,10 +172,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				F754CAB6237BD66C00AC1A25 /* ViewController.m in Sources */,
-				F75017F1237BEE630068DB48 /* BaseNAvViewController.m in Sources */,
+				F75017F1237BEE630068DB48 /* BaseNavViewController.m in Sources */,
 				F754CAB0237BD66C00AC1A25 /* AppDelegate.m in Sources */,
 				F754CAC1237BD66E00AC1A25 /* main.m in Sources */,
 				F754CAB3237BD66C00AC1A25 /* SceneDelegate.m in Sources */,
+				F75199F6237CF05900A2E50D /* BaseViewController.m in Sources */,
 				F754CACA237BD6F800AC1A25 /* FakeNavigationBar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
