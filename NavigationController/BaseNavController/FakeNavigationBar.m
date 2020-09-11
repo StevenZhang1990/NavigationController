@@ -7,12 +7,12 @@
 //
 
 #import "FakeNavigationBar.h"
-#import "UIViewController+NavBar.h"
+#import "UIViewController+NavigationBar.h"
 
 @interface FakeNavigationBar()
 
-@property (nonatomic, strong) UIVisualEffectView *fakeBackgroundEffectView;
 @property (nonatomic, strong) UIImageView *fakeBackgroundImageView;
+@property (nonatomic, strong) UIVisualEffectView *fakeBackgroundEffectView;
 @property (nonatomic, strong) UIImageView *fakeShadowImageView;
 
 @end
@@ -55,7 +55,9 @@
     self.fakeBackgroundEffectView.subviews.lastObject.backgroundColor = viewController.zBackgroundColor;
     self.fakeBackgroundImageView.image = viewController.zBackgroundImage;
     
-    if (viewController.zBackgroundImage) {
+    if (viewController.zBackgroundImage != nil) {
+        // 直接使用fakeBackgroundEffectView.alpha控制台会有提示
+        // 这样使用避免警告
         for (UIView *subview in self.fakeBackgroundEffectView.subviews) {
             subview.alpha = 0;
         }
@@ -75,15 +77,6 @@
 }
 
 #pragma mark -- lazy
-- (UIVisualEffectView *)fakeBackgroundEffectView {
-    if (!_fakeBackgroundEffectView) {
-        UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
-        _fakeBackgroundEffectView = [[UIVisualEffectView alloc] initWithEffect:effect];
-        _fakeBackgroundEffectView.userInteractionEnabled = NO;
-    }
-    return _fakeBackgroundEffectView;
-}
-
 - (UIImageView *)fakeBackgroundImageView {
     if (!_fakeBackgroundImageView) {
         _fakeBackgroundImageView = [[UIImageView alloc] init];
@@ -93,6 +86,15 @@
         _fakeBackgroundImageView.backgroundColor = [UIColor clearColor];
     }
     return _fakeBackgroundImageView;
+}
+
+- (UIVisualEffectView *)fakeBackgroundEffectView {
+    if (!_fakeBackgroundEffectView) {
+        UIBlurEffect *effect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+        _fakeBackgroundEffectView = [[UIVisualEffectView alloc] initWithEffect:effect];
+        _fakeBackgroundEffectView.userInteractionEnabled = NO;
+    }
+    return _fakeBackgroundEffectView;
 }
 
 - (UIImageView *)fakeShadowImageView {

@@ -1,4 +1,6 @@
 #import "SceneDelegate.h"
+#import "BaseNavViewController.h"
+#import "ViewController.h"
 
 @interface SceneDelegate ()
 
@@ -8,9 +10,30 @@
 
 
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
-    // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-    // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-    // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+    
+    ViewController *vc1 = [[ViewController alloc] init];
+    vc1.navigationItem.title = @"首页";
+    BaseNavViewController *nav1 = [[BaseNavViewController alloc] initWithRootViewController:vc1];
+    
+    ViewController *vc2 = [[ViewController alloc] init];
+    vc2.navigationItem.title = @"产品";
+    BaseNavViewController *nav2 = [[BaseNavViewController alloc] initWithRootViewController:vc2];
+    
+    ViewController *vc3 = [[ViewController alloc] init];
+    vc3.navigationItem.title = @"圈子";
+    BaseNavViewController *nav3 = [[BaseNavViewController alloc] initWithRootViewController:vc3];
+    
+    ViewController *vc4 = [[ViewController alloc] init];
+    vc4.navigationItem.title = @"我的";
+    BaseNavViewController *nav4 = [[BaseNavViewController alloc] initWithRootViewController:vc4];
+    
+    UITabBarController *tab = [[UITabBarController alloc] init];
+    tab.viewControllers = @[nav1, nav2, nav3, nav4];
+    
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    self.window.windowScene = (UIWindowScene *)scene;
+    self.window.rootViewController = tab;
+    [self.window makeKeyAndVisible];
 }
 
 

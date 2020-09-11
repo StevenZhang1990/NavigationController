@@ -8,7 +8,7 @@
 
 #import "BaseNAvViewController.h"
 #import "FakeNavigationBar.h"
-#import "UIViewController+NavBar.h"
+#import "UIViewController+NavigationBar.h"
 
 @interface BaseNavViewController ()<UINavigationControllerDelegate, UIGestureRecognizerDelegate>
 
@@ -17,6 +17,7 @@
 @property (nonatomic, strong) FakeNavigationBar *toFakeBar;
 @property (nonatomic, strong) UIView *fakeSuperView;
 @property (nonatomic, weak) UIViewController *poppingVC;
+@property (nonatomic, strong) NSObject *fakeFrameObserver;
 
 @end
 
@@ -35,14 +36,16 @@
     [super viewWillLayoutSubviews];
     
     if (self.transitionCoordinator) {
-        UIViewController *fromVC = [self.transitionCoordinator viewControllerForKey:UITransitionContextFromViewControllerKey];
-        if (!fromVC) return;
-        if (fromVC == self.poppingVC) {
-            [self updateNavigationBarFor:fromVC];
+        if ([self.transitionCoordinator viewControllerForKey:UITransitionContextFromViewControllerKey]) {
+            UIViewController *fromVC = [self.transitionCoordinator viewControllerForKey:UITransitionContextFromViewControllerKey];
+            if (fromVC == self.poppingVC) {
+                [self updateNavigationBarFor:fromVC];
+            }
         }
     } else {
-        if (!self.topViewController) return;
-        [self updateNavigationBarFor:self.topViewController];
+        if (self.topViewController) {
+            [self updateNavigationBarFor:self.topViewController];
+        }
     }
 }
 
@@ -86,29 +89,31 @@
 }
 
 - (void)setupFakeSubviews {
-    if (!self.fakeSuperView) return;
-    if (!self.fakeSuperView.superview) {
-        [self.fakeSuperView addObserver:self forKeyPath:@"farme" options:0 context:nil];
-        [self.fakeSuperView insertSubview:self.fakeBar atIndex:0];
+    if (self.fakeSuperView) {
+        UIView *fakeSuperView = self.fakeSuperView;
+        if (self.fakeBar.superview == nil) {
+            [self.fakeSuperView addObserver:self forKeyPath:@"farme" options:NSKeyValueObservingOptionNew context:nil];
+            [self.fakeSuperView insertSubview:self.fakeBar atIndex:0];
+        }
     }
 }
 
 - (void)layoutFakeSubviews {
-    if (!self.fakeSuperView) return;
-    self.fakeBar.frame = self.fakeSuperView.bounds;
-    [self.fakeBar setNeedsLayout];
+    if (self.fakeSuperView) {
+        NSLog(@"layoutFakeSubviews");
+        UIView *fakeSuperView = self.fakeSuperView;
+        self.fakeBar.frame = fakeSuperView.bounds;
+        [self.fakeBar setNeedsLayout];
+    }
 }
 
 - (void)handlerInteractivePopGesture:(UIScreenEdgePanGestureRecognizer *) gesture {
-    
-    if (!self.transitionCoordinator) return;
     UIViewController *fromVC = [self.transitionCoordinator viewControllerForKey:UITransitionContextFromViewControllerKey];
-    if (!fromVC) return;
     UIViewController *toVC = [self.transitionCoordinator viewControllerForKey:UITransitionContextToViewControllerKey];
-    if (!toVC) return;
-
-    if (gesture.state == UIGestureRecognizerStateChanged) {
-        self.navigationBar.tintColor = [self averageFromColor:fromVC.zTintColor toColor:toVC.zTintColor percent:self.transitionCoordinator.percentComplete];
+    if (self.transitionCoordinator && fromVC && toVC) {
+        if (gesture.state == UIGestureRecognizerStateChanged) {
+            self.navigationBar.tintColor = [self averageFromColor:fromVC.zTintColor toColor:toVC.zTintColor percent:self.transitionCoordinator.percentComplete];
+        }
     }
 }
 
@@ -141,6 +146,7 @@
     if (fromVC && toVC) {
         [self resetButtonLabelsIn:self.navigationBar];
         [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext>  _Nonnull context) {
+            [self updateNavigationBarTintFor:viewController ignoreTintColor:context.isInteractive];
             if ([viewController isEqual:toVC]) {
                 [self showTempFakeBarFrom:fromVC toVC:toVC];
             } else {
@@ -160,12 +166,6 @@
     }
 }
 
-- (void)clearTempFakeBar {
-    self.fakeBar.alpha = 1;
-    [self.fromFakeBar removeFromSuperview];
-    [self.toFakeBar removeFromSuperview];
-}
-
 - (void)showTempFakeBarFrom:(UIViewController *)fromVC toVC:(UIViewController *)toVC {
     [UIView setAnimationsEnabled:NO];
     self.fakeBar.alpha = 0;
@@ -181,7 +181,13 @@
     [self.toFakeBar setNeedsLayout];
     [self.toFakeBar updateFakeBarBackgroundWithViewController:toVC];
     [self.toFakeBar updateFakeBarShadowWithViewController:toVC];
-    [UIView setAnimationsEnabled:NO];
+    [UIView setAnimationsEnabled:YES];
+}
+
+- (void)clearTempFakeBar {
+    self.fakeBar.alpha = 1;
+    [self.fromFakeBar removeFromSuperview];
+    [self.toFakeBar removeFromSuperview];
 }
 
 - (CGRect)fakeBarFrameFor:(UIViewController *) viewController {
@@ -209,7 +215,10 @@
 
 #pragma mark -- observer
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    [self layoutFakeSubviews];
+    NSLog(@"监控到了frame");
+    if (self) {
+        [self layoutFakeSubviews];
+    }
 }
 
 #pragma mark -- UINavigationControllerDelegate
@@ -234,6 +243,16 @@
     self.poppingVC = nil;
 }
 
+- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    viewController.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStyleDone target:self action:nil];
+    if (self.viewControllers.count != 0) {
+        viewController.hidesBottomBarWhenPushed = YES;
+    } else {
+        viewController.hidesBottomBarWhenPushed = NO;
+    }
+    [super pushViewController:viewController animated:animated];
+}
+
 #pragma mark -- UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if (self.viewControllers.count <= 1) {
@@ -256,7 +275,7 @@
 }
 
 - (void)updateNavigationBarTintFor:(UIViewController *) viewController ignoreTintColor:(BOOL) ignoreTintColor {
-    if (viewController != self.topViewController) return;
+    if (![viewController isEqual:self.topViewController]) return;
     
     [UIView setAnimationsEnabled:NO];
     self.navigationBar.barStyle = viewController.zBarStyle;
@@ -270,17 +289,48 @@
 }
 
 - (void)updateNavigationBarBackgroundFor:(UIViewController *) viewController {
-    if (viewController != self.topViewController) return;
+    if (![viewController isEqual:self.topViewController]) return;
     [self.fakeBar updateFakeBarBackgroundWithViewController:viewController];
 }
 
 - (void)updateNavigationBarShadowFor:(UIViewController *) viewController {
-    if (viewController != self.topViewController) return;
+    if (![viewController isEqual:self.topViewController]) return;
     [self.fakeBar updateFakeBarShadowWithViewController:viewController];
 }
 
+#pragma mark - 属性
+- (FakeNavigationBar *)fakeBar {
+    if (!_fakeBar) {
+        _fakeBar = [[FakeNavigationBar alloc] init];
+    }
+    return _fakeBar;
+}
+
+- (FakeNavigationBar *)fromFakeBar {
+    if (!_fromFakeBar) {
+        _fromFakeBar = [[FakeNavigationBar alloc] init];
+    }
+    return _fromFakeBar;
+}
+
+- (FakeNavigationBar *)toFakeBar {
+    if (!_toFakeBar) {
+        _toFakeBar = [[FakeNavigationBar alloc] init];
+    }
+    return _toFakeBar;
+}
+
+- (UIView *)fakeSuperView {
+    if (!_fakeSuperView) {
+        _fakeSuperView = self.navigationBar.subviews.firstObject;
+    }
+    return _fakeSuperView;
+}
+
+
 #pragma mark -- delloc
 - (void)dealloc {
+    NSLog(@"释放");
     [self.fakeSuperView removeObserver:self forKeyPath:@"frame"];
 }
 
