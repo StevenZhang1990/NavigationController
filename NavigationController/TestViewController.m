@@ -20,10 +20,9 @@
     self.zBackgroundColor = [UIColor clearColor];
     self.zTitleColor = [UIColor greenColor];
     self.zTintColor = [UIColor redColor];
-//    self.zBarStyle = UIBarStyleDefault;
+    self.zBarStyle = UIBarStyleDefault;
     self.zShadowHidden = YES;
 //    self.zShadowColor = [UIColor blueColor];
-    
     
     UIButton *btn = [[UIButton alloc] init];
     btn.frame = CGRectMake(0, 0, 100, 50);

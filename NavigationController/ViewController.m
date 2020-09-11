@@ -20,8 +20,15 @@
 
 //    self.zBackgroundColor = [UIColor clearColor];
 //    self.zShadowHidden = YES;
-    self.zTitleColor = [UIColor blueColor];
-    self.zShadowColor = [UIColor blueColor];
+//    self.zTitleColor = [UIColor blueColor];
+//    self.zShadowColor = [UIColor blueColor];
+    
+    self.zBackgroundColor = [UIColor whiteColor];
+    self.zTintColor = [UIColor redColor];
+    self.zTitleColor = [UIColor redColor];
+    self.zBarStyle = UIBarStyleDefault;    
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"push" style:UIBarButtonItemStylePlain target:self action:@selector(btnClick)];
     
     UIButton *btn = [[UIButton alloc] init];
     btn.frame = CGRectMake(0, 0, 100, 50);

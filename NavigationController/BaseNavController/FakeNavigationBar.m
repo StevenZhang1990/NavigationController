@@ -44,9 +44,10 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    self.fakeBackgroundEffectView.frame = self.bounds;
-    self.fakeBackgroundImageView.frame = self.bounds;
-    self.fakeShadowImageView.frame = CGRectMake(0, self.bounds.size.height-0.5, self.bounds.size.width, 0.5);
+    self.frame = CGRectMake(0, 0, SCREEN_WIDTH, NAVIGATION_BAR_HEIGHT);
+    self.fakeBackgroundEffectView.frame = self.frame;
+    self.fakeBackgroundImageView.frame = self.frame;
+    self.fakeShadowImageView.frame = CGRectMake(0, self.frame.size.height-0.5, self.frame.size.width, 0.5);
 }
 
 #pragma mark -- public

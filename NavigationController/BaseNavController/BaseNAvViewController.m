@@ -91,9 +91,9 @@
 - (void)setupFakeSubviews {
     if (self.fakeSuperView) {
         UIView *fakeSuperView = self.fakeSuperView;
-        if (self.fakeBar.superview == nil) {
-            [self.fakeSuperView addObserver:self forKeyPath:@"farme" options:NSKeyValueObservingOptionNew context:nil];
-            [self.fakeSuperView insertSubview:self.fakeBar atIndex:0];
+        if (!self.fakeBar.superview) {
+            [fakeSuperView addObserver:self forKeyPath:@"farme" options:NSKeyValueObservingOptionNew context:nil];
+            [fakeSuperView insertSubview:self.fakeBar atIndex:0];
         }
     }
 }

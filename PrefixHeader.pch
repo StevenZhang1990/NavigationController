@@ -14,4 +14,25 @@
 
 #import "UIViewController+NavigationBar.h"
 
+// 判断是否是iPhone X， iPhone XS Max， iPhone XS， iPhone XR
+//#define iPhoneX ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(1125, 2436), [[UIScreen mainScreen] currentMode].size) : NO)
+#define iPhoneX ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(1125, 2436), [[UIScreen mainScreen] currentMode].size) ||CGSizeEqualToSize(CGSizeMake(1242, 2688), [[UIScreen mainScreen] currentMode].size) || CGSizeEqualToSize(CGSizeMake(828, 1792), [[UIScreen mainScreen] currentMode].size): NO)
+// 状态栏高度
+#define STATUS_BAR_HEIGHT    ([[UIApplication sharedApplication] statusBarFrame].size.height>20?44:20)
+// 导航栏高度
+#define NAVIGATION_BAR_HEIGHT ([[UIApplication sharedApplication] statusBarFrame].size.height>20?88:64)
+// tabBar高度
+#define TAB_BAR_HEIGHT    ([[UIApplication sharedApplication] statusBarFrame].size.height>20?83:49)
+// indicator高度
+#define HOME_INDICATOR_HEIGHT    ([[UIApplication sharedApplication] statusBarFrame].size.height>20?34:0)
+
+// 获取系统版本
+#define IOS_SYSTEM_VERSION [[[UIDevice currentDevice] systemVersion] floatValue]
+
+/// 屏幕宽度，会根据横竖屏的变化而变化
+#define SCREEN_WIDTH ([[UIScreen mainScreen] bounds].size.width)
+
+/// 屏幕高度，会根据横竖屏的变化而变化
+#define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
+
 #endif /* PrefixHeader_pch */
